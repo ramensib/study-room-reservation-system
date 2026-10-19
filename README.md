@@ -40,39 +40,49 @@ The application does **not** use a custom Node.js backend. Reservation ownership
 
 ## Project structure
 
+The Expo mobile application lives at the **repository root** (not in a `mobile/` subfolder).
+
 ```text
-mobile/
-  src/
-    AuthScreen.tsx
-    RoomSearch.tsx
-    RoomAvailability.tsx
-    MyReservations.tsx
-    RoomManagementScreen.tsx
-    AllReservations.tsx
-    availability.ts
-    reservationHistory.ts
-    services/database.ts
-    lib/supabase.ts
-  tests/
-supabase/
-  migrations/
+App.tsx
+index.ts
+app.json
+package.json
+package-lock.json
+tsconfig.json
+src/
+  AuthScreen.tsx
+  RoomSearch.tsx
+  RoomAvailability.tsx
+  MyReservations.tsx
+  RoomManagementScreen.tsx
+  AllReservations.tsx
+  availability.ts
+  reservationHistory.ts
+  services/database.ts
+  lib/supabase.ts
+tests/
+migrations/
+  20261018000100_stage2.sql
+.env.example
 ```
+
+A historical duplicate of the SQL migration may also exist at the root; use the copy in `migrations/` as the documented one.
 
 ## Getting started
 
-1. Install Node.js and dependencies, then open the `mobile` directory and run `npm install`.
-2. Create your own Supabase project and apply the reviewed migration in `supabase/migrations/`. **Do not apply it to a database containing important existing data without reviewing it.**
-3. In `mobile/.env`, configure the values shown in `mobile/.env.example`. Use **only a publishable Supabase key**, never a secret/service-role key.
+1. Install Node.js and dependencies, then open the **cloned repository root** and run `npm install`.
+2. Create your own Supabase project and apply the reviewed migration in `migrations/`. **Do not apply it to a database containing important existing data without reviewing it.**
+3. In a new root-level `.env` file, configure the values shown in `.env.example`. Use **only a publishable Supabase key**, never a secret/service-role key.
 4. Create test Auth users and use the approved role-management procedure to provision an Administrator test account; new users are Students by default.
-5. Run `npx expo start --clear`, then open the app on a compatible Expo Go device.
+5. Run `npx expo start --clear` from the repository root, then open the app on a compatible Expo Go device. For physical iPhones opening a development server, Expo CLI and Expo Go must be signed into the **same Expo account**.
 
 On Windows PowerShell, use `npm.cmd` and `npx.cmd` if script execution policies block their PowerShell shims.
 
-**Important:** The project does not provide a public production service or a self-service sign-up screen. Access requires a configured Supabase project and test accounts.
+**Important:** Cloning GitHub does not provide access to the original project's private Supabase configuration or precreated test users. Ask the project owner for approved, non-secret development setup details. The project does not provide a public production service or a self-service sign-up screen. Access requires a configured Supabase project and test accounts.
 
 ## Tests and verification
 
-From `mobile/`:
+From the **repository root**:
 
 ```bash
 node --test tests/*.test.mjs
