@@ -1,0 +1,29 @@
+# Local environment configuration and credentials
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+!.env.example
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Generated / temporary files
+.expo/
+**/.expo/
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+
+# Private, unredacted evidence and local backups
+private-evidence/
+raw-screenshots/
+*.bak
