@@ -1,5 +1,6 @@
+import { Button } from './ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Button, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, AppState, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 import { busyIntervals, reserveRoom, type Room } from './services/database';
 import { chicagoToday, dailySlots, slotStatus, validateBusyIntervals, type BusyInterval, type Slot } from './availability';
 
@@ -106,7 +107,7 @@ export default function RoomAvailability({ room, onBack }: { room: Room; onBack:
 
   const available = result?.slots.filter(slot => slotStatus(slot, result.busy, now) === 'Available').length;
   return <View style={styles.container}>
-    <Button title="Back to room search" disabled={saving} onPress={onBack} />
+    <Button variant="secondary" title="Back to room search" disabled={saving} onPress={onBack} />
     <Text accessibilityRole="header" style={styles.heading}>{room.name}: availability</Text>
     <Text style={styles.text}>Selected date: {date.trim() || 'Choose a date'}</Text>
     <Text style={styles.text}>All dates and times are America/Chicago (Central Time). Monday through Sunday: 9 AM to 9 PM, in one-hour slots.</Text>
@@ -124,9 +125,9 @@ export default function RoomAvailability({ room, onBack }: { room: Room; onBack:
       <Text accessibilityRole="header" style={styles.heading}>Confirm reservation</Text>
       <Text style={styles.text}>{room.name} — {date.trim()}</Text>
       <Text style={styles.text}>{selected.label} America/Chicago (60 minutes)</Text>
-      <Text style={styles.text}>Availability will be checked by the database when you confirm.</Text>
+      <Text style={styles.text}>We will check that this time is still available when you confirm.</Text>
       <Button title="Confirm reservation" disabled={saving || selected.start <= now} onPress={() => void confirmReservation()} />
-      <Button title="Dismiss confirmation" disabled={saving} onPress={() => setSelected(null)} />
+      <Button variant="secondary" title="Dismiss confirmation" disabled={saving} onPress={() => setSelected(null)} />
     </View>}
     {loading && <ActivityIndicator accessibilityLabel="Loading availability" />}
     {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
@@ -136,9 +137,9 @@ export default function RoomAvailability({ room, onBack }: { room: Room; onBack:
       <Text style={styles.text}>Availability is a snapshot. Refresh with Show availability. Viewing does not reserve a room.</Text>
       {result.slots.map(slot => {
         const status = slotStatus(slot, result.busy, now);
-        return <View key={slot.start} style={styles.slot}>
-          <Text style={styles.text}>{slot.label}</Text>
-          <Text style={[styles.text, status === 'Available' ? styles.available : styles.unavailable]}>
+        return <View key={slot.start} style={[styles.slot, status !== 'Available' && styles.closedSlot]}>
+          <Text style={styles.slotTime}>{slot.label}</Text>
+          <Text style={[styles.badge, status === 'Available' ? styles.available : styles.unavailable]}>
             {status === 'Available' ? 'Available' : `${status} - unavailable`}
           </Text>
           {status === 'Available' && <Button title={`Reserve ${slot.label}`} disabled={saving || loading}
@@ -150,11 +151,14 @@ export default function RoomAvailability({ room, onBack }: { room: Room; onBack:
 }
 const styles = StyleSheet.create({
   container: { gap: 12, marginTop: 20 },
-  heading: { fontSize: 22, fontWeight: '700', color: '#17324d' },
-  text: { fontSize: 16, color: '#17324d' },
-  input: { borderWidth: 1, borderColor: '#64748b', padding: 12, borderRadius: 6, fontSize: 16, backgroundColor: '#fff' },
-  slot: { gap: 6, padding: 14, borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, backgroundColor: '#fff' },
-  available: { color: '#166534', fontWeight: '600' },
-  unavailable: { color: '#555' },
-  error: { color: '#9f1239', fontSize: 16 },
+  heading: { fontSize: 22, fontWeight: '700', color: '#142D43' },
+  text: { fontSize: 16, lineHeight: 23, color: '#142D43' },
+  input: { borderWidth: 1, borderColor: '#A6B7C4', padding: 12, borderRadius: 14, fontSize: 16, backgroundColor: '#fff' },
+  slot: { gap: 10, padding: 18, borderWidth: 1, borderColor: '#D5E0E7', borderRadius: 18, backgroundColor: '#fff' },
+  closedSlot: { backgroundColor: '#EAF0F4' },
+  slotTime: { color: '#142D43', fontSize: 18, fontWeight: '600' },
+  badge: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, fontSize: 13, fontWeight: '600' },
+  available: { color: '#07686B', backgroundColor: '#E3F3F1' },
+  unavailable: { color: '#465D6E', backgroundColor: '#DCE5EB' },
+  error: { color: '#A52B45', fontSize: 16, lineHeight: 23 },
 });

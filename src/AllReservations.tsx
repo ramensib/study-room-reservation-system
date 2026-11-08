@@ -1,5 +1,6 @@
+import { Button } from './ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { busyIntervals, cancelAdminReservation, listAllReservations, type AdminReservation } from './services/database';
 import { formatReservationTime } from './reservationHistory';
 
@@ -67,8 +68,8 @@ export default function AllReservations({ adminId, onBack }: { adminId: string; 
     <View style={styles.content}>
       <Text accessibilityRole="header" style={styles.heading}>All Reservations</Text>
       <Text>Earliest start first, including cancelled records. All times America/Chicago. Only cancel a reservation you have determined is invalid.</Text>
-      <Button title="Back to room management" disabled={saving} onPress={onBack} />
-      <Button title="Refresh reservations" disabled={saving} onPress={() => { setNotice(''); void load(); }} />
+      <Button variant="secondary" title="Back to room management" disabled={saving} onPress={onBack} />
+      <Button variant="secondary" title="Refresh reservations" disabled={saving} onPress={() => { setNotice(''); void load(); }} />
       {notice ? <Text accessibilityRole="alert">{notice}</Text> : null}
       {selected ? <View style={styles.card}>
         <Text style={styles.name}>Confirm invalid reservation cancellation</Text>
@@ -77,8 +78,8 @@ export default function AllReservations({ adminId, onBack }: { adminId: string; 
         <Text>Start: {formatReservationTime(selected.starts_at)}</Text>
         <Text>End: {formatReservationTime(selected.ends_at)}</Text>
         <Text>Status: {selected.status}</Text>
-        <Button title={saving ? 'Cancelling...' : 'Confirm cancellation'} disabled={saving} onPress={() => void confirmCancellation()} />
-        <Button title="Keep reservation" disabled={saving} onPress={() => setSelected(null)} />
+        <Button variant="danger" title={saving ? 'Cancelling...' : 'Confirm cancellation'} disabled={saving} onPress={() => void confirmCancellation()} />
+        <Button variant="secondary" title="Keep reservation" disabled={saving} onPress={() => setSelected(null)} />
       </View> : null}
       {loading ? <ActivityIndicator accessibilityLabel="Loading reservations" /> : error
         ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text>
@@ -91,7 +92,7 @@ export default function AllReservations({ adminId, onBack }: { adminId: string; 
             <Text>Start: {formatReservationTime(row.starts_at)}</Text>
             <Text>End: {formatReservationTime(row.ends_at)}</Text>
             <Text style={row.status === 'cancelled' ? styles.cancelled : styles.active}>Status: {row.status}</Text>
-            {row.status === 'active' && <Button title="Cancel invalid reservation" disabled={saving} onPress={() => { setNotice(''); setSelected(row); }} />}
+            {row.status === 'active' && <Button variant="danger" title="Cancel invalid reservation" disabled={saving} onPress={() => { setNotice(''); setSelected(row); }} />}
             {row.status === 'cancelled' ? <Text>Cancelled — not an active booking</Text> : null}
           </View>)}
           {!ended && <Button title="Next page" disabled={saving} onPress={() => void load(offset + rows.length)} />}
@@ -100,12 +101,12 @@ export default function AllReservations({ adminId, onBack }: { adminId: string; 
   </ScrollView>;
 }
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 24, backgroundColor: '#f5f7fb' },
+  container: { flexGrow: 1, padding: 24, backgroundColor: '#F3F6F8' },
   content: { width: '100%', maxWidth: 520, alignSelf: 'center', gap: 12 },
-  heading: { fontSize: 26, fontWeight: '700', color: '#17324d' },
-  card: { padding: 16, gap: 8, backgroundColor: 'white', borderRadius: 8 },
-  name: { fontSize: 20, fontWeight: '600' },
-  active: { color: '#166534', fontWeight: '600' },
-  cancelled: { color: '#6b455b', fontWeight: '600' },
-  error: { color: '#9f1239' },
+  heading: { fontSize: 26, fontWeight: '700', color: '#142D43' },
+  card: { padding: 20, gap: 10, backgroundColor: 'white', borderRadius: 18, borderWidth: 1, borderColor: '#D5E0E7' },
+  name: { fontSize: 20, fontWeight: '600', color: '#142D43' },
+  active: { color: '#07686B', backgroundColor: '#E3F3F1', alignSelf: 'flex-start', padding: 8, borderRadius: 8, fontWeight: '600' },
+  cancelled: { color: '#465D6E', backgroundColor: '#EAF0F4', alignSelf: 'flex-start', padding: 8, borderRadius: 8, fontWeight: '600' },
+  error: { color: '#A52B45' },
 });
