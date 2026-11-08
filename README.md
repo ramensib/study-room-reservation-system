@@ -61,7 +61,7 @@ src/
   services/database.ts
   lib/supabase.ts
 tests/
-assets/  # app icons, splash/other referenced images
+icon.png  # shared app icon and web favicon
 migrations/
   20261018000100_stage2.sql
 .env.example
@@ -71,7 +71,7 @@ A historical duplicate of the SQL migration may also exist at the root; use the 
 
 ## Getting started
 
-1. Install Node.js and dependencies, then open the **cloned repository root** and run `npm install`. Make sure the project's `assets/` folder was uploaded too; `app.json` references image files from it.
+1. Install Node.js and dependencies, then open the **cloned repository root** and run `npm install`. The app configuration uses the tracked root-level `icon.png`; no separate assets folder is required.
 2. Create your own Supabase project and apply the reviewed migration in `migrations/`. **Do not apply it to a database containing important existing data without reviewing it.**
 3. In a new root-level `.env` file, configure the values shown in `.env.example`. Use **only a publishable Supabase key**, never a secret/service-role key.
 4. Create test Auth users and use the approved role-management procedure to provision an Administrator test account; new users are Students by default.
