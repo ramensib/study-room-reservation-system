@@ -61,7 +61,7 @@ src/
   services/database.ts
   lib/supabase.ts
 tests/
-assets/  # app icons, splash/other referenced images
+icon.png  # shared app icon and web favicon
 migrations/
   20261018000100_stage2.sql
 .env.example
@@ -71,11 +71,14 @@ A historical duplicate of the SQL migration may also exist at the root; use the 
 
 ## Getting started
 
-1. Install Node.js and dependencies, then open the **cloned repository root** and run `npm install`. Make sure the project's `assets/` folder was uploaded too; `app.json` references image files from it.
-2. Create your own Supabase project and apply the reviewed migration in `migrations/`. **Do not apply it to a database containing important existing data without reviewing it.**
-3. In a new root-level `.env` file, configure the values shown in `.env.example`. Use **only a publishable Supabase key**, never a secret/service-role key.
-4. Create test Auth users and use the approved role-management procedure to provision an Administrator test account; new users are Students by default.
-5. Run `npx expo start --clear` from the repository root, then open the app on a compatible Expo Go device. For physical iPhones opening a development server, Expo CLI and Expo Go must be signed into the **same Expo account**.
+Prerequisites: Git, Node.js 24 with npm (the Milestone 3 report records Node 24.22.1 and npm 11.9.0), an Expo Go device compatible with this project's Expo SDK, and access to a disposable Supabase project. The direct dependencies and development dependencies are listed in [package.json](package.json); [package-lock.json](package-lock.json) pins the install, including transitive dependencies.
+
+1. Clone this repository, open its root directory, and run `npm ci`. The app configuration uses the tracked root-level `icon.png`; no separate assets folder is required.
+2. In a new, disposable Supabase project, review and run [the migration](migrations/20261018000100_stage2.sql) in the SQL Editor. Do not run it against an existing database with important data.
+3. Copy the root `.env.example` to a root-level `.env`. Set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using your test project. Use only a publishable key; never commit `.env`, credentials, or a secret/service-role key.
+4. In Supabase Authentication, create separate email/password test users that can sign in. New users receive Student profiles. To provision an Administrator, the test-project owner can use the SQL Editor to set `public.profiles.role` to `administrator` for only the approved test account, matching its exact Auth user UUID. Leave the Student account unchanged.
+5. Run `npx expo start --clear` from the repository root and open the QR code in compatible Expo Go. For the team's physical iPhone setup, use the same Expo account in Expo CLI and Expo Go.
+6. Sign in as Administrator and add a disposable room with a name and positive capacity. Then sign in as Student, search for the room, choose a future slot, and confirm a booking. Use **My Reservations** to view or cancel it.
 
 On Windows PowerShell, use `npm.cmd` and `npx.cmd` if script execution policies block their PowerShell shims.
 
@@ -86,11 +89,11 @@ On Windows PowerShell, use `npm.cmd` and `npx.cmd` if script execution policies 
 From the **repository root**:
 
 ```bash
-node --test tests/*.test.mjs
+npm test
 npm run typecheck
 ```
 
-The team reported **56 passing local automated tests** at the Milestone 2 checkpoint, plus successful manual iPhone checks for the main Student and Administrator workflows. These local tests are largely isolated/mock-based; they are not a substitute for authenticated database or device acceptance tests.
+The Milestone 3 report records **56 passing local automated tests, with no failures or skips**, and a passing TypeScript check. See [Testing and verification](docs/TESTING.md) for coverage and limits.
 
 **Outstanding acceptance work:**
 - 100 database-level conflicting-booking trials (NFR-03).

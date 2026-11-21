@@ -48,6 +48,7 @@ function screen(historyMode = false) {
     react, 'react/jsx-runtime': { jsx, jsxs: jsx, Fragment: 'Fragment' },
     'react-native': { ScrollView: 'ScrollView', ActivityIndicator: 'Spinner', Button: 'Button', Text: 'Text', TextInput: 'Input', View: 'View',
       AppState: { addEventListener: () => ({ remove() {} }) }, Keyboard: { dismiss() {} }, StyleSheet: { create: x => x } },
+    './ui': { Button: 'Button' },
     './availability': availability,
     './reservationHistory': history,
     './services/database': {
@@ -288,7 +289,7 @@ test('invalid reservation intervals fail before inserts', async () => {
 });
 
 test('room/cancellation fixture contract matches predicates in existing RPC SQL', () => {
-  const sql = readFileSync(new URL('../../supabase/migrations/20261018000100_stage2.sql', import.meta.url), 'utf8');
+  const sql = readFileSync(new URL('../migrations/20261018000100_stage2.sql', import.meta.url), 'utf8');
   assert.match(sql, /where r\.room_id = target_room and r\.status = 'active'\s+and r\.starts_at < window_end and r\.ends_at > window_start/);
   // Explicit model of the inspected SQL, not execution of PostgreSQL or deployed RPC.
   const slots = availability.dailySlots('2027-07-15');

@@ -1,5 +1,6 @@
+import { Button } from './ui';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Button, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { searchRooms, type Room } from './services/database';
 import { SUPPORTED_FEATURES } from './roomFeatures';
 import RoomAvailability from './RoomAvailability';
@@ -56,31 +57,37 @@ export default function RoomSearch({ studentId }: { studentId: string }) {
   if (selectedRoom) return <RoomAvailability key={selectedRoom.id} room={selectedRoom} onBack={() => setSelectedRoom(null)} />;
 
   return <View style={styles.section}>
-    <Button title="My Reservations" onPress={() => setShowReservations(true)} />
+    <Button variant="secondary" title="My Reservations" onPress={() => setShowReservations(true)} />
     <Text accessibilityRole="header" style={styles.heading}>Find a study room</Text>
-    <Text style={styles.text}>Rooms must meet the minimum capacity and have every selected feature.</Text>
+    <Text style={styles.text}>A quiet corner or a group session. Find your space.</Text>
+    <View style={styles.filters}>
     <Text style={styles.label}>Minimum capacity (optional)</Text>
     <TextInput accessibilityLabel="Minimum capacity" keyboardType="number-pad" value={capacity}
       placeholder="Any capacity" style={styles.input} onChangeText={value => { invalidate(); setCapacity(value); }} />
     <Text style={styles.label}>Required features (optional)</Text>
+    <View style={styles.features}>
     {SUPPORTED_FEATURES.map(feature => <Pressable key={feature} accessibilityRole="checkbox"
       accessibilityLabel={feature} accessibilityState={{ checked: features.includes(feature) }}
-      style={styles.feature} onPress={() => {
+      style={[styles.feature, features.includes(feature) && styles.featureSelected]} onPress={() => {
         invalidate();
         setFeatures(current => current.includes(feature) ? current.filter(value => value !== feature) : [...current, feature]);
       }}>
-      <Text style={styles.text}>{features.includes(feature) ? '[x]' : '[ ]'} {feature}</Text>
+      <Text style={[styles.featureText, features.includes(feature) && styles.featureTextSelected]}>{features.includes(feature) ? '✓ ' : '+ '}{feature}</Text>
     </Pressable>)}
+    </View>
+    <Text style={styles.hint}>Results include every selected feature.</Text>
     <Button title={loading ? 'Searching...' : 'Search rooms'} disabled={loading} onPress={() => void search()} />
-    <Button title="Clear filters" onPress={() => { setCapacity(''); setFeatures([]); void search('', []); }} />
+    <Button variant="secondary" title="Clear filters" onPress={() => { setCapacity(''); setFeatures([]); void search('', []); }} />
+    </View>
     {loading && <ActivityIndicator accessibilityLabel="Searching rooms" />}
     {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
     {!loading && !error && !searched && <Text style={styles.text}>Tap Search rooms to load matching rooms.</Text>}
     {searched && <Text accessibilityLiveRegion="polite" style={styles.label}>{rooms.length} matching room(s)</Text>}
     {searched && rooms.length === 0 && <Text style={styles.text}>No rooms match these filters. Lower the minimum capacity or remove required features, then search again.</Text>}
     {rooms.map(room => <View key={room.id} style={styles.room}>
-      <Text style={styles.label}>{room.name}</Text>
-      <Text style={styles.text}>Capacity: {room.capacity}</Text>
+      <Text style={styles.roomEyebrow}>STUDY SPACE</Text>
+      <Text style={styles.roomName}>{room.name}</Text>
+      <Text style={styles.seats}>{room.capacity} seats</Text>
       <Text style={styles.text}>Features: {room.features.length ? room.features.join(', ') : 'None listed'}</Text>
       <Button title={`View availability for ${room.name}`} onPress={() => setSelectedRoom(room)} />
     </View>)}
@@ -89,11 +96,20 @@ export default function RoomSearch({ studentId }: { studentId: string }) {
 
 const styles = StyleSheet.create({
   section: { marginTop: 24, gap: 10 },
-  heading: { fontSize: 22, fontWeight: '700', color: '#17324d' },
-  label: { fontSize: 17, fontWeight: '600', color: '#17324d' },
-  text: { fontSize: 16, color: '#40566b' },
-  input: { padding: 12, borderWidth: 1, borderColor: '#64748b', borderRadius: 6, backgroundColor: '#fff', fontSize: 16 },
-  feature: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 },
-  room: { padding: 16, gap: 8, backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8 },
-  error: { color: '#9f1239', fontSize: 16 },
+  heading: { fontSize: 28, fontWeight: '700', color: '#142D43' },
+  label: { fontSize: 17, fontWeight: '600', color: '#142D43' },
+  text: { fontSize: 16, lineHeight: 23, color: '#465D6E' },
+  input: { padding: 12, borderWidth: 1, borderColor: '#A6B7C4', borderRadius: 14, backgroundColor: '#fff', fontSize: 16, lineHeight: 23 },
+  filters: { padding: 18, gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, borderWidth: 1, borderColor: '#D5E0E7', marginVertical: 8 },
+  features: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  feature: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: '#D5E0E7', backgroundColor: '#F3F6F8', maxWidth: '100%' },
+  featureSelected: { backgroundColor: '#E3F3F1', borderColor: '#087F83' },
+  featureText: { color: '#465D6E', fontSize: 14, fontWeight: '600', flexShrink: 1 },
+  featureTextSelected: { color: '#07686B' },
+  hint: { color: '#465D6E', fontSize: 13, lineHeight: 19 },
+  room: { padding: 20, gap: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5E0E7', borderRadius: 20, marginBottom: 4 },
+  roomEyebrow: { fontSize: 10, letterSpacing: 1.5, color: '#087F83', fontWeight: '700' },
+  roomName: { color: '#142D43', fontSize: 23, fontWeight: '700' },
+  seats: { color: '#07686B', backgroundColor: '#E3F3F1', alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, fontWeight: '600' },
+  error: { color: '#A52B45', fontSize: 16, lineHeight: 23 },
 });

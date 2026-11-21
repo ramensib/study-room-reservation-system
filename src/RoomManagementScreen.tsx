@@ -1,5 +1,6 @@
+import { Button } from './ui';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { Room, RoomInput } from './services/database';
 import { addRoom, editRoom, listRooms } from './services/database';
 
@@ -99,23 +100,24 @@ export default function RoomManagementScreen({ adminId, onSignOut, busy }: Props
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.card}>
+        <Text style={styles.eyebrow}>STUDY ROOM · TEAM DATA</Text>
         <Text accessibilityRole="header" style={styles.title}>Administrator</Text>
-        <Text style={styles.subtitle}>Manage room records</Text>
-        <Button title="All Reservations" disabled={busy || saving} onPress={() => setShowReservations(true)} />
-        <Button title={busy ? 'Please wait…' : 'Sign out'} disabled={busy || saving} onPress={onSignOut} />
+        <Text style={styles.subtitle}>Keep every study space ready.</Text>
+        <Button variant="secondary" title="All Reservations" disabled={busy || saving} onPress={() => setShowReservations(true)} />
+        <Button variant="secondary" title={busy ? 'Please wait…' : 'Sign out'} disabled={busy || saving} onPress={onSignOut} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Existing rooms</Text>
           {loading ? <ActivityIndicator accessibilityLabel="Loading rooms" /> : rooms.length === 0
             ? <Text style={styles.muted}>No rooms have been added yet.</Text>
             : rooms.map(room => (
-              <Pressable key={room.id} style={[styles.room, room.id === selectedId && styles.selectedRoom]} onPress={() => selectRoom(room)}>
+              <Pressable key={room.id} accessibilityRole="button" accessibilityLabel={`Edit ${room.name}`} accessibilityState={{ selected: room.id === selectedId, disabled: saving }} disabled={saving} style={[styles.room, room.id === selectedId && styles.selectedRoom]} onPress={() => selectRoom(room)}>
                 <Text style={styles.roomName}>{room.name}</Text>
                 <Text style={styles.roomDetails}>{room.capacity} seats{room.features.length ? ` • ${room.features.join(', ')}` : ''}</Text>
               </Pressable>
             ))}
           <Button title="Add a new room" onPress={startNewRoom} disabled={saving} />
-          {!loading && <Button title="Refresh rooms" onPress={() => void loadRooms()} disabled={saving} />}
+          {!loading && <Button variant="secondary" title="Refresh rooms" onPress={() => void loadRooms()} disabled={saving} />}
         </View>
 
         <View style={styles.section}>
@@ -130,7 +132,7 @@ export default function RoomManagementScreen({ adminId, onSignOut, busy }: Props
           <Text style={styles.label}>Supported features (optional)</Text>
           {SUPPORTED_FEATURES.map(feature => {
             const selected = draft.features.includes(feature);
-            return <Pressable key={feature} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} style={styles.feature} onPress={() => toggleFeature(feature)}>
+            return <Pressable key={feature} accessibilityRole="checkbox" accessibilityLabel={feature} accessibilityState={{ checked: selected, disabled: saving }} disabled={saving} style={[styles.feature, selected && styles.selectedFeature]} onPress={() => toggleFeature(feature)}>
               <Text style={styles.checkbox}>{selected ? '☑' : '☐'}</Text><Text>{feature}</Text>
             </Pressable>;
           })}
@@ -144,21 +146,23 @@ export default function RoomManagementScreen({ adminId, onSignOut, busy }: Props
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 20, backgroundColor: '#f5f7fb' },
+  container: { flexGrow: 1, padding: 20, backgroundColor: '#F3F6F8' },
   card: { width: '100%', maxWidth: 520, alignSelf: 'center', paddingVertical: 20 },
-  title: { color: '#17324d', fontSize: 28, fontWeight: '700' },
-  subtitle: { color: '#40566b', fontSize: 20, marginTop: 6, marginBottom: 16 },
-  section: { marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: '#cbd5e1' },
-  sectionTitle: { color: '#17324d', fontSize: 20, fontWeight: '700', marginBottom: 12 },
-  room: { padding: 14, marginBottom: 8, borderRadius: 8, backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1' },
-  selectedRoom: { borderColor: '#17324d', borderWidth: 2 },
-  roomName: { color: '#17324d', fontSize: 17, fontWeight: '600' },
-  roomDetails: { color: '#40566b', marginTop: 4 },
-  label: { color: '#17324d', fontSize: 16, marginTop: 12, marginBottom: 8 },
-  input: { borderWidth: 1, borderColor: '#64748b', borderRadius: 6, padding: 12, backgroundColor: '#fff', fontSize: 16 },
-  feature: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
-  checkbox: { fontSize: 22, marginRight: 10, color: '#17324d' },
-  muted: { color: '#40566b', marginBottom: 12 },
+  title: { color: '#142D43', fontSize: 28, fontWeight: '700' },
+  subtitle: { color: '#465D6E', fontSize: 20, marginTop: 6, marginBottom: 16 },
+  eyebrow: { color: '#087F83', fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 10 },
+  section: { marginTop: 24, padding: 18, borderWidth: 1, borderColor: '#D5E0E7', borderRadius: 22, backgroundColor: '#FFFFFF' },
+  sectionTitle: { color: '#142D43', fontSize: 20, fontWeight: '700', marginBottom: 12 },
+  room: { padding: 14, marginBottom: 8, borderRadius: 18, backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5E0E7' },
+  selectedRoom: { borderColor: '#087F83', backgroundColor: '#E3F3F1' },
+  roomName: { color: '#142D43', fontSize: 17, fontWeight: '600' },
+  roomDetails: { color: '#465D6E', marginTop: 4 },
+  label: { color: '#142D43', fontSize: 16, marginTop: 12, marginBottom: 8 },
+  input: { borderWidth: 1, borderColor: '#A6B7C4', borderRadius: 14, padding: 12, backgroundColor: '#fff', fontSize: 16, lineHeight: 23 },
+  feature: { flexDirection: 'row', alignItems: 'center', minHeight: 48, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 8, borderRadius: 12, backgroundColor: '#F3F6F8' },
+  selectedFeature: { backgroundColor: '#E3F3F1' },
+  checkbox: { fontSize: 22, marginRight: 10, color: '#142D43' },
+  muted: { color: '#465D6E', marginBottom: 12 },
   success: { color: '#166534', fontSize: 16, marginTop: 16 },
-  error: { color: '#9f1239', fontSize: 16, marginTop: 16 },
+  error: { color: '#A52B45', fontSize: 16, marginTop: 16 },
 });

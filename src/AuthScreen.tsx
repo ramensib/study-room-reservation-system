@@ -1,5 +1,6 @@
+import { Button } from './ui';
 import { useEffect, useState } from 'react';
-import { AppState, Button, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AppState, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import type { Session } from '@supabase/supabase-js';
 import { configurationError, supabase } from './lib/supabase';
@@ -92,21 +93,35 @@ export default function AuthScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={[styles.container, session && styles.signedInContainer]} keyboardShouldPersistTaps="handled">
       <View style={styles.card}>
-        <Text accessibilityRole="header" style={styles.title}>Study Room Reservation System</Text>
-        <Text style={styles.team}>Team Data</Text>
+        <View style={styles.brand}>
+          <View style={styles.mark}><Text style={styles.markText}>SR</Text></View>
+          <View style={styles.brandWords}>
+            <Text accessibilityRole="header" style={styles.title}>Study Room</Text>
+            <Text style={styles.team}>RESERVATION SYSTEM · TEAM DATA</Text>
+          </View>
+        </View>
+        {!session && <View style={styles.hero}>
+          <Text style={styles.eyebrow}>SPACE TO FOCUS</Text>
+          <Text accessibilityRole="header" style={styles.heroTitle}>Your next study session starts here.</Text>
+          <Text style={styles.heroText}>Find a room that fits your group. Choose a time. Make it yours.</Text>
+          <View style={styles.heroRule} />
+          <Text style={styles.heroText}>1-hour bookings · 9 AM–9 PM Central</Text>
+        </View>}
         {configurationError ? <Text style={styles.message}>{configurationError}</Text>
           : initializing ? <Text style={styles.message}>Restoring session…</Text>
           : session ? <>
-            <Text style={styles.message}>Signed in as {session.user.email}</Text>
-            {role ? <Text style={styles.message}>Role: Student</Text>
+            <Text style={styles.account}>{session.user.email}</Text>
+            {role ? <Text style={styles.roleBadge}>STUDENT WORKSPACE</Text>
               : roleError ? <>
                 <Text accessibilityRole="alert" style={styles.error}>{roleError}</Text>
                 <Button title="Retry account lookup" onPress={() => setRoleAttempt(value => value + 1)} />
               </> : <Text style={styles.message}>Loading account role…</Text>}
-            <Button title={busy ? 'Please wait…' : 'Sign out'} disabled={busy} onPress={signOut} />
-          </> : <>
+            <Button variant="secondary" title={busy ? 'Please wait…' : 'Sign out'} disabled={busy} onPress={signOut} />
+          </> : <View style={styles.loginPanel}>
+            <Text accessibilityRole="header" style={styles.loginTitle}>Welcome back</Text>
+            <Text style={styles.message}>Sign in with your project account.</Text>
             <Text style={styles.label}>Email</Text>
             <TextInput accessibilityLabel="Email" style={styles.input} value={email} onChangeText={setEmail}
               autoCapitalize="none" autoCorrect={false} keyboardType="email-address" autoComplete="email" editable={!busy} />
@@ -114,7 +129,7 @@ export default function AuthScreen() {
             <TextInput accessibilityLabel="Password" style={styles.input} value={password} onChangeText={setPassword}
               secureTextEntry autoCapitalize="none" autoComplete="current-password" editable={!busy} onSubmitEditing={signIn} />
             <Button title={busy ? 'Signing in…' : 'Sign in'} disabled={busy} onPress={signIn} />
-          </>}
+          </View>}
         {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
         {session && roleOwner === session.user.id && role === 'student' ? <RoomSearch key={session.user.id} studentId={session.user.id} /> : null}
       </View>
@@ -124,12 +139,26 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: 'center', padding: 24, backgroundColor: '#f5f7fb' },
-  card: { width: '100%', maxWidth: 480, alignSelf: 'center', paddingVertical: 32 },
-  title: { color: '#17324d', fontSize: 28, fontWeight: '700', textAlign: 'center' },
-  team: { color: '#40566b', fontSize: 20, marginTop: 12, marginBottom: 24, textAlign: 'center' },
-  label: { color: '#17324d', fontSize: 16, marginBottom: 8 },
-  input: { borderWidth: 1, borderColor: '#64748b', borderRadius: 6, padding: 12, marginBottom: 16, backgroundColor: '#fff', fontSize: 16 },
-  message: { color: '#17324d', fontSize: 16, marginBottom: 16 },
-  error: { color: '#9f1239', fontSize: 16, marginVertical: 16 },
+  container: { flexGrow: 1, justifyContent: 'center', padding: 20, backgroundColor: '#F3F6F8' },
+  signedInContainer: { justifyContent: 'flex-start' },
+  card: { width: '100%', maxWidth: 520, alignSelf: 'center', paddingVertical: 16 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24 },
+  mark: { width: 48, height: 48, borderRadius: 16, backgroundColor: '#087F83', alignItems: 'center', justifyContent: 'center' },
+  markText: { color: '#FFFFFF', fontSize: 19, fontWeight: '800' },
+  brandWords: { flex: 1 },
+  title: { color: '#142D43', fontSize: 24, fontWeight: '700' },
+  team: { color: '#465D6E', fontSize: 10, letterSpacing: 0.7, marginTop: 4 },
+  hero: { backgroundColor: '#142D43', borderRadius: 24, padding: 24, marginBottom: 24 },
+  eyebrow: { color: '#89D9D2', fontSize: 11, fontWeight: '700', letterSpacing: 1.5, marginBottom: 14 },
+  heroTitle: { color: '#FFFFFF', fontSize: 29, lineHeight: 36, fontWeight: '700', marginBottom: 12 },
+  heroText: { color: '#D9E7EC', fontSize: 14, lineHeight: 22 },
+  heroRule: { height: 1, backgroundColor: '#365164', marginVertical: 18 },
+  loginPanel: { padding: 20, borderRadius: 22, borderWidth: 1, borderColor: '#D5E0E7', backgroundColor: '#FFFFFF' },
+  loginTitle: { color: '#142D43', fontSize: 23, fontWeight: '700', marginBottom: 8 },
+  account: { color: '#465D6E', fontSize: 14, marginBottom: 10 },
+  roleBadge: { color: '#07686B', backgroundColor: '#E3F3F1', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, fontSize: 11, letterSpacing: 1, fontWeight: '700', marginBottom: 12 },
+  label: { color: '#142D43', fontSize: 16, marginBottom: 8 },
+  input: { borderWidth: 1, borderColor: '#A6B7C4', borderRadius: 14, padding: 12, marginBottom: 16, backgroundColor: '#fff', fontSize: 16, lineHeight: 23 },
+  message: { color: '#142D43', fontSize: 16, marginBottom: 16 },
+  error: { color: '#A52B45', fontSize: 16, marginVertical: 16 },
 });

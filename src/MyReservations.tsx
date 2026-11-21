@@ -1,5 +1,6 @@
+import { Button } from './ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Button, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, StyleSheet, Text, View } from 'react-native';
 import { busyIntervals, cancelOwnReservation, listOwnReservations } from './services/database';
 import { validateBusyIntervals } from './availability';
 import { canCancelReservation, formatReservationTime, groupReservations, reservationNote, type OwnReservation } from './reservationHistory';
@@ -87,18 +88,18 @@ export default function MyReservations({ studentId, onBack }: { studentId: strin
         <Text style={styles.room}>{row.roomName}</Text>
         <Text style={styles.text}>Start: {formatReservationTime(row.starts_at)}</Text>
         <Text style={styles.text}>End: {formatReservationTime(row.ends_at)}</Text>
-        <Text style={styles.text}>Stored status: {row.status}</Text>
+        <Text style={[styles.badge, row.status === 'cancelled' && styles.cancelledBadge]}>Status: {row.status}</Text>
         <Text style={styles.text}>{reservationNote(row, now)}</Text>
-        {canCancelReservation(row, now) && <Button title="Cancel Reservation" disabled={cancelling}
+        {canCancelReservation(row, now) && <Button variant="danger" title="Cancel Reservation" disabled={cancelling}
           onPress={() => { if (!locked.current) { setSelected(row); setMessage(''); } }} />}
       </View>)}
     </View>;
   }
   return <View style={styles.section}>
-    <Button title="Back to room search" disabled={cancelling} onPress={onBack} />
+    <Button variant="secondary" title="Back to room search" disabled={cancelling} onPress={onBack} />
     <Text accessibilityRole="header" style={styles.heading}>My Reservations</Text>
-    <Text style={styles.text}>All times are America/Chicago. Upcoming includes ongoing reservations and future cancelled entries. Past means the reservation time has ended; stored status is unchanged.</Text>
-    <Button title="Refresh reservations" disabled={loading || cancelling} onPress={() => void load()} />
+    <Text style={styles.text}>All times are Central (America/Chicago). Upcoming includes current sessions and cancelled entries whose time has not ended.</Text>
+    <Button variant="secondary" title="Refresh reservations" disabled={loading || cancelling} onPress={() => void load()} />
     {cancelling && <Text style={styles.text}>Processing cancellation. Please wait...</Text>}
     {message ? <Text accessibilityRole="alert" style={styles.text}>{message}</Text> : null}
     {selected && <View style={styles.card}>
@@ -106,10 +107,10 @@ export default function MyReservations({ studentId, onBack }: { studentId: strin
       <Text style={styles.room}>{selected.roomName}</Text>
       <Text style={styles.text}>Start: {formatReservationTime(selected.starts_at)}</Text>
       <Text style={styles.text}>End: {formatReservationTime(selected.ends_at)}</Text>
-      <Text style={styles.text}>Times are America/Chicago. Confirming changes the stored status to cancelled.</Text>
+      <Text style={styles.text}>Times are America/Chicago. Your cancelled reservation will remain in your history.</Text>
       {!canCancelReservation(selected, now) && <Text style={styles.error}>This reservation is no longer eligible for cancellation.</Text>}
-      <Button title="Confirm cancellation" disabled={cancelling || !canCancelReservation(selected, now)} onPress={() => void confirmCancellation()} />
-      <Button title="Keep reservation" disabled={cancelling} onPress={() => setSelected(null)} />
+      <Button variant="danger" title="Confirm cancellation" disabled={cancelling || !canCancelReservation(selected, now)} onPress={() => void confirmCancellation()} />
+      <Button variant="secondary" title="Keep reservation" disabled={cancelling} onPress={() => setSelected(null)} />
     </View>}
     {loading ? <ActivityIndicator accessibilityLabel="Loading your reservations" /> : error
       ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text>
@@ -122,9 +123,11 @@ export default function MyReservations({ studentId, onBack }: { studentId: strin
 
 const styles = StyleSheet.create({
   section: { marginTop: 18, gap: 12 },
-  heading: { color: '#17324d', fontSize: 22, fontWeight: '700' },
-  room: { color: '#17324d', fontSize: 18, fontWeight: '600' },
-  text: { color: '#40566b', fontSize: 16 },
-  card: { gap: 8, padding: 16, borderRadius: 8, borderWidth: 1, borderColor: '#cbd5e1', backgroundColor: '#fff' },
-  error: { color: '#9f1239', fontSize: 16 },
+  heading: { color: '#142D43', fontSize: 22, fontWeight: '700' },
+  room: { color: '#142D43', fontSize: 18, fontWeight: '600' },
+  text: { color: '#465D6E', fontSize: 16, lineHeight: 23 },
+  card: { gap: 8, padding: 16, borderRadius: 18, borderWidth: 1, borderColor: '#D5E0E7', backgroundColor: '#fff' },
+  badge: { color: '#07686B', backgroundColor: '#E3F3F1', alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, fontSize: 13, fontWeight: '600' },
+  cancelledBadge: { color: '#465D6E', backgroundColor: '#EAF0F4' },
+  error: { color: '#A52B45', fontSize: 16, lineHeight: 23 },
 });
